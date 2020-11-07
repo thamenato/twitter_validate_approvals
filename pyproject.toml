@@ -2,7 +2,7 @@
 name = "twitter_validate_approvals"
 version = "0.0.1"
 description = "Twitter Code Challenge"
-authors = ["Thales Menato <thales@thamenato.dev>"]
+authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.7"

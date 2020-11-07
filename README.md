@@ -1,3 +1,3 @@
-# twitter_validate_approvals
+# Validate Approvals
 
-Twitter Code Challenge
+Challenge description [here](resources/CHALLENGE.md).

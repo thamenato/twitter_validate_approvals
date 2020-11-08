@@ -1,19 +1,24 @@
+from glob import glob
+from pathlib import Path
 from typing import List
 
 from validate_approvals.utils import get_file_content, get_path
 
 
-def get_dependencies(changed_file: str) -> List[str]:
-    """Try to read from DEPENDENCIES file at the changed_file folder.
+def get_transitive_dependencies(repo_root=""):
+    repo_root += "/" if repo_root[-1] != "/" else ""
+    transitive_deps = {}
 
-    Args:
-        changed_file (str): path for the file that changed.
+    dep_files = glob(f"{repo_root}**/DEPENDENCIES", recursive=True)
+    for filepath in dep_files:
+        path = Path(filepath)
+        curr_folder = str(path.parent).replace(repo_root, "")
+        for dependency_folder in get_file_content(path):
+            dependencies = transitive_deps.get(dependency_folder, set())
+            dependencies.add(curr_folder)
+            transitive_deps[dependency_folder] = dependencies
 
-    Returns:
-        List[str]: List containing the file path for all dependencies.
-    """
-    path = get_path(changed_file, "DEPENDENCIES")
-    return get_file_content(path)
+    return transitive_deps
 
 
 def get_owners(changed_file: str) -> List[str]:

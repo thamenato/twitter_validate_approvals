@@ -44,9 +44,7 @@ class TestCLI:
         args = parser.parse_args(["--changed-files", "folder/goes/here"])
         assert args.changed_files
 
-    @pytest.mark.parametrize(
-        ("argument", "expected_value"), _get_approvers_str_arguments()
-    )
+    @pytest.mark.parametrize("argument, expected_value", _get_approvers_str_arguments())
     def test_get_split_arguments(self, parser, argument, expected_value):
         args = parser.parse_args(["--approvers", argument])
         assert tuple(get_split_arguments(args.approvers)) == expected_value

@@ -1,7 +1,9 @@
 import argparse
+from argparse import ArgumentParser
+from typing import Generator
 
 
-def create_parser():
+def create_parser() -> ArgumentParser:
     parser = argparse.ArgumentParser(description="")
 
     parser.add_argument("--approvers", type=str)
@@ -10,19 +12,19 @@ def create_parser():
     return parser
 
 
-def get_split_argument_list(arg: str):
-    return [value.strip() for value in arg.split(",")]
+def get_split_arguments(arg: str) -> Generator[str, None, None]:
+    return (value.strip() for value in arg.split(","))
 
 
-def run():
+def run() -> None:
     parser = create_parser()
     args = parser.parse_args()
 
     approvers = changed_files = None
     if args.approvers:
-        approvers = get_split_argument_list(args.approvers)
+        approvers = tuple(get_split_arguments(args.approvers))
     if args.changed_files:
-        changed_files = get_split_argument_list(args.changed_files)
+        changed_files = tuple(get_split_arguments(args.changed_files))
 
     print(approvers)
     print(changed_files)

@@ -24,6 +24,12 @@ class Validator:
         self._set_transitive_dependencies()
 
     def _set_transitive_dependencies(self):
+        """Creates a dict that returns which folders(value) depends on folder(key)
+
+        Seeks for all `DEPENDENCIES` files and read them. For each dependency it
+        will add the current folder (where the `DEPENDENCIES` is being read from)
+        to a list that represents the transitive dependency.
+        """
         dep_files = glob(f"{self.repo_root}**/DEPENDENCIES", recursive=True)
         for filepath in dep_files:
             path = Path(filepath)
@@ -36,6 +42,12 @@ class Validator:
                 self.transitive_dependencies[dependency_folder] = dependencies
 
     def _set_all_owners(self):
+        """Define all the owners for changed files and transitive dependencies
+
+        Get the owners for the folders where the changed files belongs to,
+        then verify for transitive dependencies and get the owners for
+        them too.
+        """
         direct_dependency = get_folders(self.changed_files)
         all_folders = set(direct_dependency)
         for folder in direct_dependency:
@@ -63,8 +75,11 @@ class Validator:
             List[str]: List containing the name of the owners of those files.
         """
         path = Path(filepath)
-        owners = get_file_content(path.joinpath("OWNERS"))
-        return owners or self._get_folder_owners(str(path.parent))
+        if str(self.repo_root[:-1]) in str(path.resolve()):
+            # only runs if it's a child of repo_root
+            owners = get_file_content(path.joinpath("OWNERS"))
+            return owners or self._get_folder_owners(str(path.parent))
+        return []
 
     def validate(self) -> str:
         self._set_all_owners()

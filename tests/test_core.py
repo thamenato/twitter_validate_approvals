@@ -1,20 +1,20 @@
 import pytest
 
-from tests import TWITTER_SRC
 from validate_approvals.core import Validator
 
 
 class TestValidator:
     @pytest.mark.parametrize(
         "changed_file, expected_value",
-        [
-            (f"{TWITTER_SRC}/follow", ["alovelace", "ghopper"]),
-            (f"{TWITTER_SRC}/user", ["ghopper"]),
-        ],
+        [("x", ["A", "B"]), ("y", ["B", "C"]), ("z", ["D"])],
     )
     def test_get_folder_owners(self, fake_repo, changed_file, expected_value):
-        validator = Validator(repo_root=str(fake_repo.realpath()))
-        assert validator._get_folder_owners(changed_file) == expected_value
+        repo_root = str(fake_repo.realpath())
+        validator = Validator(repo_root=repo_root)
+        assert (
+            validator._get_folder_owners(f"{repo_root}/{changed_file}")
+            == expected_value
+        )
 
     def test_get_transitive_dependencies(self, fake_repo):
         validator = Validator(repo_root=str(fake_repo.realpath()))

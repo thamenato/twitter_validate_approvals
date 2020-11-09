@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 
 
-def get_folders(changed_files: List[str]):
+def get_folders(changed_files: List[str]) -> List[str]:
     return [str(get_folder_path(folder)) for folder in changed_files]
 
 

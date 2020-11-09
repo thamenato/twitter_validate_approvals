@@ -21,9 +21,9 @@ def get_split_arguments(arg: str) -> Generator[str, None, None]:
 def run(args: Namespace, repo_root="") -> str:
     approvers = changed_files = None
     if args.approvers:
-        approvers = list(get_split_arguments(args.approvers))
+        approvers = tuple(get_split_arguments(args.approvers))
     if args.changed_files:
-        changed_files = list(get_split_arguments(args.changed_files))
+        changed_files = tuple(get_split_arguments(args.changed_files))
 
     if approvers and changed_files:
         validator = Validator(

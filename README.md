@@ -8,7 +8,7 @@ Challenge description [here](resources/CHALLENGE.md).
 _Note: This project uses [poetry](https://python-poetry.org) as it's dependency manager so make sure that_
 _you have latest `poetry` installed locally._
 
-To create the virtual environment, install and dependencies and the
+To create a virtual environment with project's dependencies and the
 `validate_approvals` CLI, simply run:
 
 ```shell

@@ -1,6 +1,6 @@
 from glob import glob
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from validate_approvals.utils import get_file_content, get_folders
 
@@ -17,7 +17,7 @@ class Validator:
         else:
             self.repo_root = ""
 
-        self.transitive_dependencies: Dict[str, List[str]] = {}
+        self.transitive_dependencies: Dict[str, Set[str]] = {}
         self.owners: Dict[str, List[str]] = {}
         self.changed_files = kwargs.get("changed_files", [])
         self.approvers = kwargs.get("approvers")
@@ -28,7 +28,7 @@ class Validator:
 
         Seeks for all `DEPENDENCIES` files and read them. For each dependency it
         will add the current folder (where the `DEPENDENCIES` is being read from)
-        to a list that represents the transitive dependency.
+        to a set that represents the transitive dependency.
         """
         dep_files = glob(f"{self.repo_root}**/DEPENDENCIES", recursive=True)
         for filepath in dep_files:
@@ -52,11 +52,11 @@ class Validator:
         all_folders = set(direct_dependency)
         for folder in direct_dependency:
             folder_name = folder.replace(self.repo_root, "")
-            dependencies = [
+            dependencies = {
                 f"{self.repo_root}{f}"
                 for f in self.transitive_dependencies.get(folder_name, [])
-            ]
-            all_folders = all_folders.union(set(dependencies))
+            }
+            all_folders = all_folders.union(dependencies)
 
         for folder in all_folders:
             folder_name = folder.replace(self.repo_root, "")

@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import pytest
 
-from validate_approvals.cli import create_parser, get_split_arguments, run
+from validate_approvals.cli import _create_parser, _get_split_arguments, _run
 
 
 def _get_approvers_str_arguments() -> List[Tuple[str, Tuple[str, ...]]]:
@@ -36,7 +36,7 @@ class TestCLI:
 
     @pytest.fixture()
     def parser(self):
-        return create_parser()
+        return _create_parser()
 
     def test_argument_parser(self, parser):
         args = parser.parse_args([])
@@ -51,7 +51,7 @@ class TestCLI:
     @pytest.mark.parametrize("argument, expected_value", _get_approvers_str_arguments())
     def test_get_split_arguments(self, parser, argument, expected_value):
         args = parser.parse_args(["--approvers", argument])
-        assert tuple(get_split_arguments(args.approvers)) == expected_value
+        assert tuple(_get_split_arguments(args.approvers)) == expected_value
 
     @pytest.mark.parametrize(
         "approvers, changed_files, expected_result",
@@ -83,4 +83,4 @@ class TestCLI:
         args = parser.parse_args(
             ["--approvers", approvers, "--changed-files", changed_files]
         )
-        assert run(args, "tests/repo_root") == expected_result
+        assert _run(args, "tests/repo_root") == expected_result

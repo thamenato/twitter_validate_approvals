@@ -1,4 +1,4 @@
-from validate_approvals.cli import run
+from validate_approvals.cli import main
 
 if __name__ == "__main__":
-    run()
+    main()

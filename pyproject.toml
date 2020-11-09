@@ -9,7 +9,7 @@ description = "Twitter Code Challenge"
 authors = ["John Doe"]  # poetry doesn't like empty strings here
 
 [tool.poetry.scripts]
-validate_approvals = 'validate_approvals.cli:run'
+validate_approvals = 'validate_approvals.cli:main'
 
 [tool.poetry.dependencies]
 python = "^3.7"

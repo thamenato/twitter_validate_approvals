@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import pytest
 
-from validate_approvals.cli import create_parser, get_split_arguments
+from validate_approvals.cli import create_parser, get_split_arguments, run
 
 
 def _get_approvers_str_arguments() -> List[Tuple[str, Tuple[str, ...]]]:
@@ -30,6 +30,10 @@ def _get_approvers_str_arguments() -> List[Tuple[str, Tuple[str, ...]]]:
 
 
 class TestCLI:
+    @pytest.fixture(scope="class")
+    def repo_root(self):
+        return
+
     @pytest.fixture()
     def parser(self):
         return create_parser()
@@ -48,3 +52,35 @@ class TestCLI:
     def test_get_split_arguments(self, parser, argument, expected_value):
         args = parser.parse_args(["--approvers", argument])
         assert tuple(get_split_arguments(args.approvers)) == expected_value
+
+    @pytest.mark.parametrize(
+        "approvers, changed_files, expected_result",
+        [
+            (
+                "alovelace,ghopper,eclarke",  # missing eclarke or kantonelli from example
+                "tests/repo_root/src/com/twitter/follow/Follow.java,tests/repo_root/src/com/twitter/user/User.java",
+                "Approved",
+            ),
+            (
+                "alovelace",
+                "tests/repo_root/src/com/twitter/follow/Follow.java",
+                "Insufficient approvals",
+            ),
+            (
+                "eclarke",
+                "tests/repo_root/src/com/twitter/follow/Follow.java",
+                "Insufficient approvals",
+            ),
+            (
+                "alovelace,eclarke",
+                "tests/repo_root/src/com/twitter/follow/Follow.java",
+                "Approved",
+            ),
+            ("mfox", "tests/repo_root/src/com/twitter/tweet/Tweet.java", "Approved"),
+        ],
+    )
+    def test_repo_root(self, parser, approvers, changed_files, expected_result):
+        args = parser.parse_args(
+            ["--approvers", approvers, "--changed-files", changed_files]
+        )
+        assert run(args, "tests/repo_root") == expected_result

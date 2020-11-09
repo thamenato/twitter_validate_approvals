@@ -1,6 +1,6 @@
 import argparse
 from argparse import ArgumentParser
-from typing import Generator
+from typing import Generator, Optional
 
 from validate_approvals.core import Validator
 
@@ -18,19 +18,26 @@ def get_split_arguments(arg: str) -> Generator[str, None, None]:
     return (value.strip() for value in arg.split(","))
 
 
-def run() -> str:
-    parser = create_parser()
-    args = parser.parse_args()
-
+def run(args, repo_root="") -> Optional[str]:
     approvers = changed_files = None
     if args.approvers:
-        approvers = tuple(get_split_arguments(args.approvers))
+        approvers = list(get_split_arguments(args.approvers))
     if args.changed_files:
-        changed_files = tuple(get_split_arguments(args.changed_files))
+        changed_files = list(get_split_arguments(args.changed_files))
 
-    validator = Validator(changed_files=changed_files, approvers=approvers)
-    return validator.validate()
+    if approvers and changed_files:
+        validator = Validator(
+            repo_root=repo_root, changed_files=changed_files, approvers=approvers
+        )
+        return validator.validate()
+    else:
+        print("Both --approvers and --changed-files must be set!\n")
+        parser.print_help()
+
+    return None
 
 
 if __name__ == "__main__":
-    run()
+    parser = create_parser()
+    args = parser.parse_args()
+    print(run(args))

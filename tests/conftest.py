@@ -10,9 +10,9 @@ def fake_repo(tmpdir_factory):
 
     # create the rest of the repo inside the root
     repo = {
-        "x": [("DEPENDENCIES", "y\n"), ("OWNERS", "A\nB\n")],
+        "x": [("DEPENDENCIES", "y\n"), ("OWNERS", "A\nB\n"), ("b.txt", "")],
         "y": [("OWNERS", "B\nC\n"), ("file", "")],
-        "z": [("DEPENDENCIES", "y\nx\n")],
+        "z": [("DEPENDENCIES", "y\nx\n"), ("a.txt", "")],
     }
     for folder_name, file_list in repo.items():
         folder_fp = root.mkdir(folder_name)

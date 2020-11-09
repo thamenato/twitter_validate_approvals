@@ -6,19 +6,22 @@ from validate_approvals.utils import get_file_content, get_folders
 
 
 class Validator:
-    owners: Dict[str, List[str]] = {}
-    transitive_dependencies: Dict[str, List[str]] = {}
-    repo_root: str = ""
+    _APPROVED = "Approved"
+    _NOT_APPROVED = "Insufficient approvals"
 
     def __init__(self, *args, **kwargs) -> None:
         repo_root = kwargs.get("repo_root")
         if repo_root:
             repo_root += "/" if repo_root[-1] != "/" else ""
             self.repo_root = repo_root
+        else:
+            self.repo_root = ""
 
+        self.transitive_dependencies: Dict[str, List[str]] = {}
+        self.owners: Dict[str, List[str]] = {}
+        self.changed_files = kwargs.get("changed_files", [])
+        self.approvers = kwargs.get("approvers")
         self._set_transitive_dependencies()
-        self.changed_files = kwargs["changed_files"]
-        self.approvers = kwargs["approvers"]
 
     def _set_transitive_dependencies(self):
         dep_files = glob(f"{self.repo_root}**/DEPENDENCIES", recursive=True)
@@ -33,10 +36,19 @@ class Validator:
                 self.transitive_dependencies[dependency_folder] = dependencies
 
     def _set_all_owners(self):
-        folder_list = get_folders(self.changed_files)
-        for folder in folder_list:
-            folder_owners = self._get_folder_owners(folder)
-            self.owners[folder.replace(self.repo_root, "")] = folder_owners
+        direct_dependency = get_folders(self.changed_files)
+        all_folders = set(direct_dependency)
+        for folder in direct_dependency:
+            folder_name = folder.replace(self.repo_root, "")
+            dependencies = [
+                f"{self.repo_root}{f}"
+                for f in self.transitive_dependencies.get(folder_name, [])
+            ]
+            all_folders = all_folders.union(set(dependencies))
+
+        for folder in all_folders:
+            folder_name = folder.replace(self.repo_root, "")
+            self.owners[folder_name] = self._get_folder_owners(folder)
 
     def _get_folder_owners(self, filepath: str) -> List[str]:
         """Return the owners for the file that changed.
@@ -56,5 +68,7 @@ class Validator:
 
     def validate(self) -> str:
         self._set_all_owners()
-
-        return "Approved"
+        for owners in self.owners.values():
+            if not set(self.approvers).intersection(set(owners)):
+                return self._NOT_APPROVED
+        return self._APPROVED
